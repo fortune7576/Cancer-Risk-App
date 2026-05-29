@@ -308,13 +308,20 @@ function Topbar({
 }) {
   return (
     <div className="topbar">
-      <div>
-        <p className="topbar-small">Signed in as</p>
-        <p className="topbar-name">
-          {user.name} · {user.email}
-        </p>
-      </div>
+      <div className="topbar-user">
+        <img
+          src="/assets/images/logo-symbol.png"
+          alt="Cancer Lifestyle Risk Check logo"
+          className="topbar-logo"
+        />
 
+        <div>
+          <p className="topbar-small">Signed in as</p>
+          <p className="topbar-name">
+            {user.name} · {user.email}
+          </p>
+        </div>
+      </div>
       <div className="topbar-actions">
         {activePage === "mypage" ? (
           <button className="btn btn-outline" onClick={onSurvey}>

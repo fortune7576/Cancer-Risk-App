@@ -765,3 +765,27 @@
     font-size: 30px;
   }
 }
+
+.topbar-user {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.topbar-logo {
+  width: 138px;
+  height: 58px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+@media (max-width: 600px) {
+  .topbar-user {
+    align-items: center;
+  }
+
+  .topbar-logo {
+    width: 34px;
+    height: 34px;
+  }
+}
