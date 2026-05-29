@@ -755,3 +755,13 @@
         width: 100%;
       }
     }
+
+  @media (max-width: 1060px) {
+  .risk-label {
+    font-size: 30px;
+  }
+
+  .score-large .risk-label {
+    font-size: 30px;
+  }
+}
