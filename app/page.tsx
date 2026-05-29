@@ -306,6 +306,23 @@ function Topbar({
   onMyPage?: () => void;
   onLogout: () => void;
 }) {
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+
+  function handleNavigate() {
+    setIsDropdownOpen(false);
+
+    if (activePage === "mypage") {
+      onSurvey?.();
+    } else {
+      onMyPage?.();
+    }
+  }
+
+  function handleLogout() {
+    setIsDropdownOpen(false);
+    onLogout();
+  }
+
   return (
     <div className="topbar">
       <div className="topbar-user">
@@ -316,26 +333,56 @@ function Topbar({
         />
 
         <div>
-          <p className="topbar-small">Signed in as</p>
-          <p className="topbar-name">
-            {user.name} · {user.email}
-          </p>
+          <p className="topbar-small">Cancer Lifestyle Risk Check</p>
+          <p className="topbar-name">Personal Health Dashboard</p>
         </div>
       </div>
-      <div className="topbar-actions">
-        {activePage === "mypage" ? (
-          <button className="btn btn-outline" onClick={onSurvey}>
-            🏠 Survey
-          </button>
-        ) : (
-          <button className="btn btn-outline" onClick={onMyPage}>
-            👤 My Page
-          </button>
-        )}
 
-        <button className="btn btn-outline" onClick={onLogout}>
-          ↪ Log out
+      <div
+        className="topbar-menu-wrap"
+        onMouseEnter={() => setIsDropdownOpen(true)}
+        onMouseLeave={() => setIsDropdownOpen(false)}
+      >
+        <button type="button" className="topbar-profile-btn">
+          <span className="profile-avatar">
+            {user.name ? user.name.charAt(0).toUpperCase() : "U"}
+          </span>
+
+          <span className="profile-text">
+            <span className="profile-small">Signed in as</span>
+            <span className="profile-name">{user.name}</span>
+          </span>
+
+          <span className={`dropdown-arrow ${isDropdownOpen ? "open" : ""}`}>
+            ▾
+          </span>
         </button>
+
+        {isDropdownOpen && (
+          <div className="topbar-dropdown">
+            <div className="dropdown-user-info">
+              <p className="dropdown-label">Signed in as</p>
+              <p className="dropdown-name">{user.name}</p>
+              <p className="dropdown-email">{user.email}</p>
+            </div>
+
+            <button
+              type="button"
+              className="dropdown-item"
+              onClick={handleNavigate}
+            >
+              {activePage === "mypage" ? "🏠 Survey" : "👤 My Page"}
+            </button>
+
+            <button
+              type="button"
+              className="dropdown-item logout"
+              onClick={handleLogout}
+            >
+              ↪ Sign out
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );
