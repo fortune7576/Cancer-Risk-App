@@ -2,6 +2,7 @@
 
 import { FormEvent, useEffect, useMemo, useState } from "react";
 
+
 type QuestionType = "scale" | "yesno";
 type AnswerValue = number | "yes" | "no";
 type Answers = Record<string, AnswerValue>;
@@ -43,6 +44,8 @@ type Result = {
   missions: string[];
   createdAt: string;
 };
+
+type AppPage = "home" | "survey" | "mypage" | "about" | "goals";
 
 const TOKEN_KEY = "cancer-risk-app-token";
 const USER_KEY = "cancer-risk-app-user";
@@ -301,7 +304,7 @@ function Topbar({
   onLogout,
 }: {
   user: User;
-  activePage: "survey" | "mypage";
+  activePage: AppPage;
   onSurvey?: () => void;
   onMyPage?: () => void;
   onLogout: () => void;
@@ -331,11 +334,6 @@ function Topbar({
           alt="Cancer Lifestyle Risk Check logo"
           className="topbar-logo"
         />
-
-        <div>
-          <p className="topbar-small">Cancer Lifestyle Risk Check</p>
-          <p className="topbar-name">Personal Health Dashboard</p>
-        </div>
       </div>
 
       <div
@@ -590,7 +588,221 @@ function MyPageContent({
     </div>
   );
 }
+function Sidebar({
+  activePage,
+  onChangePage,
+}: {
+  activePage: AppPage;
+  onChangePage: (page: AppPage) => void;
+}) {
+  const tabs: { id: AppPage; label: string; icon: string }[] = [
+    { id: "home", label: "Home", icon: "🏠" },
+    { id: "survey", label: "Survey", icon: "📝" },
+    { id: "mypage", label: "My Page", icon: "👤" },
+    { id: "about", label: "About Us", icon: "🛡️" },
+    { id: "goals", label: "Future Goals", icon: "🚀" },
+  ];
 
+  return (
+    <aside className="sidebar">
+      <div className="sidebar-title">Navigation</div>
+
+      <nav className="sidebar-nav">
+        {tabs.map((tab) => (
+          <button
+            key={tab.id}
+            type="button"
+            className={`sidebar-tab ${activePage === tab.id ? "active" : ""}`}
+            onClick={() => onChangePage(tab.id)}
+          >
+            <span>{tab.icon}</span>
+            <span>{tab.label}</span>
+          </button>
+        ))}
+      </nav>
+    </aside>
+  );
+}
+
+function DashboardFrame({
+  user,
+  page,
+  onChangePage,
+  onLogout,
+  children,
+}: {
+  user: User;
+  page: AppPage;
+  onChangePage: (page: AppPage) => void;
+  onLogout: () => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <main className="app">
+      <div className="container">
+        <Topbar
+          user={user}
+          activePage={page}
+          onSurvey={() => onChangePage("survey")}
+          onMyPage={() => onChangePage("mypage")}
+          onLogout={onLogout}
+        />
+
+        <div className="dashboard-layout">
+          <Sidebar activePage={page} onChangePage={onChangePage} />
+
+          <div className="dashboard-content">{children}</div>
+        </div>
+      </div>
+    </main>
+  );
+}
+
+function HomeContent({ user }: { user: User }) {
+  return (
+    <>
+      <header className="page-header left">
+        <div className="badge">🏠 Home</div>
+        <h1 className="page-title">Welcome, {user.name}</h1>
+        <p className="page-text">
+          This dashboard helps you check lifestyle-related cancer risk factors,
+          understand your personal risk profile, and turn your results into small,
+          practical weekly health actions.
+        </p>
+      </header>
+
+      <div className="info-grid">
+        <section className="card">
+          <div className="card-inner">
+            <h2 className="section-title">📝 Start with a short survey</h2>
+            <p className="risk-message">
+              Answer simple questions about diet, smoking, alcohol, sleep, exercise,
+              family history, stress, and environmental exposure.
+            </p>
+          </div>
+        </section>
+
+        <section className="card">
+          <div className="card-inner">
+            <h2 className="section-title">📊 Get a risk report</h2>
+            <p className="risk-message">
+              The app calculates a lifestyle-based risk score and highlights your
+              main risk factors in an easy-to-read report.
+            </p>
+          </div>
+        </section>
+
+        <section className="card">
+          <div className="card-inner">
+            <h2 className="section-title">🎯 Follow weekly missions</h2>
+            <p className="risk-message">
+              Your results are turned into small behavior-change goals, such as
+              reducing processed food, walking more, or improving sleep habits.
+            </p>
+          </div>
+        </section>
+      </div>
+    </>
+  );
+}
+
+function AboutContent() {
+  return (
+    <>
+      <header className="page-header left">
+        <div className="badge">🛡️ About Us</div>
+        <h1 className="page-title">Prevention starts with awareness.</h1>
+        <p className="page-text">
+          Cancer Lifestyle Risk Check is designed as a simple educational tool that
+          helps users reflect on daily habits connected to long-term health risk.
+        </p>
+      </header>
+
+      <section className="card">
+        <div className="card-inner">
+          <h2 className="section-title">Why this app exists</h2>
+          <p className="risk-message">
+            Many cancer-related risk factors are connected to long-term lifestyle
+            patterns, such as smoking, alcohol use, lack of exercise, diet quality,
+            poor sleep, stress, family history, and environmental exposure.
+          </p>
+
+          <h3 className="mini-title">What we focus on</h3>
+          <div className="tag-wrap">
+            <span className="tag">Lifestyle awareness</span>
+            <span className="tag">Early screening mindset</span>
+            <span className="tag">Personalized feedback</span>
+            <span className="tag">Small weekly actions</span>
+          </div>
+
+          <p className="disclaimer">
+            This app is not a medical diagnosis tool. It is an educational demo that
+            encourages users to understand risk factors and discuss screening plans
+            with medical professionals.
+          </p>
+        </div>
+      </section>
+    </>
+  );
+}
+
+function FutureGoalsContent() {
+  return (
+    <>
+      <header className="page-header left">
+        <div className="badge">🚀 Future Goals</div>
+        <h1 className="page-title">Building toward smarter preventive care.</h1>
+        <p className="page-text">
+          The current version uses a simple weighted score system. Future versions
+          could become more personalized, data-driven, and clinically useful.
+        </p>
+      </header>
+
+      <div className="info-grid">
+        <section className="card">
+          <div className="card-inner">
+            <h2 className="section-title">🤖 AI-powered analysis</h2>
+            <p className="risk-message">
+              Add an AI API to provide more nuanced explanations, personalized
+              lifestyle suggestions, and clearer follow-up guidance.
+            </p>
+          </div>
+        </section>
+
+        <section className="card">
+          <div className="card-inner">
+            <h2 className="section-title">💾 User history</h2>
+            <p className="risk-message">
+              Store survey results over time so users can track whether their risk
+              score and habits improve week by week.
+            </p>
+          </div>
+        </section>
+
+        <section className="card">
+          <div className="card-inner">
+            <h2 className="section-title">🔔 Smart reminders</h2>
+            <p className="risk-message">
+              Add weekly reminders for missions, screening checkups, exercise goals,
+              and healthy eating plans.
+            </p>
+          </div>
+        </section>
+
+        <section className="card">
+          <div className="card-inner">
+            <h2 className="section-title">🏥 Screening resources</h2>
+            <p className="risk-message">
+              Connect users to age-appropriate screening information, such as upper
+              endoscopy, colonoscopy, lung screening consultation, and family-history
+              based checkups.
+            </p>
+          </div>
+        </section>
+      </div>
+    </>
+  );
+}
 export default function HomePage() {
   const [mounted, setMounted] = useState(false);
   const [user, setUser] = useState<User | null>(null);
@@ -598,7 +810,7 @@ export default function HomePage() {
   const [authError, setAuthError] = useState("");
   const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState<Answers>({});
-  const [page, setPage] = useState<"survey" | "mypage">("survey");
+  const [page, setPage] = useState<AppPage>("home");
   const [showResult, setShowResult] = useState(false);
   const [completedMissions, setCompletedMissions] = useState<CompletedMissions>({});
   const [latestResult, setLatestResult] = useState<Result | null>(null);
@@ -719,7 +931,7 @@ export default function HomePage() {
     setUser(null);
     setStep(0);
     setAnswers({});
-    setPage("survey");
+    setPage("home");
     setShowResult(false);
     setCompletedMissions({});
     setLatestResult(null);
@@ -737,6 +949,14 @@ export default function HomePage() {
     setAnswers({});
     setShowResult(false);
     setCompletedMissions({});
+  }
+
+  function handleChangePage(nextPage: AppPage) {
+    setPage(nextPage);
+
+    if (nextPage === "survey") {
+      setShowResult(false);
+    }
   }
 
   if (!user) {
@@ -822,181 +1042,199 @@ export default function HomePage() {
       </main>
     );
   }
-
-  if (page === "mypage") {
-    return (
-      <main className="app">
-        <div className="container">
-          <Topbar
-            user={user}
-            activePage="mypage"
-            onSurvey={() => {
-              setPage("survey");
-              setShowResult(false);
-            }}
-            onLogout={logout}
-          />
-
-          <header className="page-header left">
-            <div className="badge">👤 Personal Health Dashboard</div>
-            <h1 className="page-title">My Page</h1>
-            <p className="page-text">
-              Review your latest risk result, recommended screenings, and weekly action mission
-              progress.
-            </p>
-          </header>
-
-          {!latestResult ? (
-            <section className="card">
-              <div className="empty-state">
-                <div className="empty-icon">📄</div>
-                <h2 className="empty-title">No survey result yet</h2>
-                <p className="empty-text">
-                  Complete the lifestyle survey first. Your latest risk level, key factors,
-                  recommendations, and missions will appear here.
-                </p>
-                <button className="btn btn-primary narrow" onClick={() => setPage("survey")}>
-                  Start survey
-                </button>
-              </div>
-            </section>
-          ) : (
-            <MyPageContent result={latestResult} completedMissions={completedMissions} />
-          )}
-        </div>
-      </main>
-    );
-  }
-
-  if (showResult) {
-    return (
-      <main className="app">
-        <div className="container">
-          <Topbar
-            user={user}
-            activePage="survey"
-            onMyPage={() => setPage("mypage")}
-            onLogout={logout}
-          />
-
-          <header className="page-header">
-            <div className="badge">📋 Result Report</div>
-            <h1 className="page-title">Your Risk Analysis Result</h1>
-            <p className="page-text">
-              Review your main risk factors, screening suggestions, and weekly action plan.
-            </p>
-          </header>
-
-          <ResultContent
-            result={analysis}
-            completedMissions={completedMissions}
-            setCompletedMissions={setCompletedMissions}
-            onRetake={resetSurvey}
-          />
-        </div>
-      </main>
-    );
-  }
-
-  const question = QUESTIONS[step];
-  const currentAnswer = answers[question.id];
-  const progress = Math.round(((step + 1) / QUESTIONS.length) * 100);
-
+if (page === "home") {
   return (
-    <main className="app">
-      <div className="container">
-        <Topbar
-          user={user}
-          activePage="survey"
-          onMyPage={() => setPage("mypage")}
-          onLogout={logout}
-        />
+    <DashboardFrame user={user} page={page} onChangePage={handleChangePage} onLogout={logout}>
+      <HomeContent user={user} />
+    </DashboardFrame>
+  );
+}
 
-        <header className="page-header">
-          <div className="badge">❤️ Cancer Lifestyle Risk Check</div>
-          <h1 className="page-title">Lifestyle-Based Cancer Risk Check</h1>
-          <p className="page-text">
-            Complete a short survey, see your personalized risk factors, and choose practical weekly
-            missions.
-          </p>
-        </header>
+if (page === "about") {
+  return (
+    <DashboardFrame user={user} page={page} onChangePage={handleChangePage} onLogout={logout}>
+      <AboutContent />
+    </DashboardFrame>
+  );
+}
 
-        <section className="card survey-card">
-          <div className="progress-area">
-            <div className="progress-meta">
-              <span>
-                Question {step + 1} / {QUESTIONS.length}
-              </span>
-              <span>{progress}%</span>
-            </div>
-            <div className="progress-track">
-              <div className="progress-bar" style={{ width: `${progress}%` }} />
-            </div>
-          </div>
+if (page === "goals") {
+  return (
+    <DashboardFrame user={user} page={page} onChangePage={handleChangePage} onLogout={logout}>
+      <FutureGoalsContent />
+    </DashboardFrame>
+  );
+}
 
-          <div className="question-area">
-            <span className={`category-pill ${question.categoryClass}`}>{question.category}</span>
-            <h2 className="question-title">{question.title}</h2>
-            <p className="question-description">{question.description}</p>
+if (page === "mypage") {
+  return (
+    <DashboardFrame user={user} page={page} onChangePage={handleChangePage} onLogout={logout}>
+      <header className="page-header left">
+        <div className="badge">👤 Personal Health Dashboard</div>
+        <h1 className="page-title">My Page</h1>
+        <p className="page-text">
+          Review your latest risk result, recommended screenings, and weekly action mission
+          progress.
+        </p>
+      </header>
 
-            {question.type === "yesno" ? (
-              <div className="yesno-grid">
-                {(["yes", "no"] as const).map((value) => (
-                  <button
-                    key={value}
-                    className={`yesno-btn ${currentAnswer === value ? "selected" : ""}`}
-                    onClick={() => setAnswers((prev) => ({ ...prev, [question.id]: value }))}
-                  >
-                    <span>{value === "yes" ? "Yes" : "No"}</span>
-                    <span>{currentAnswer === value ? "✓" : ""}</span>
-                  </button>
-                ))}
-              </div>
-            ) : (
-              <>
-                <div className="scale-grid">
-                  {[1, 2, 3, 4, 5].map((value) => (
-                    <button
-                      key={value}
-                      className={`scale-btn ${Number(currentAnswer) === value ? "selected" : ""}`}
-                      onClick={() => setAnswers((prev) => ({ ...prev, [question.id]: value }))}
-                    >
-                      {value}
-                    </button>
-                  ))}
-                </div>
-                <div className="scale-labels">
-                  <span>{question.lowLabel}</span>
-                  <span>{question.highLabel}</span>
-                </div>
-              </>
-            )}
-          </div>
-
-          <div className="survey-actions">
+      {!latestResult ? (
+        <section className="card">
+          <div className="empty-state">
+            <div className="empty-icon">📄</div>
+            <h2 className="empty-title">No survey result yet</h2>
+            <p className="empty-text">
+              Complete the lifestyle survey first. Your latest risk level, key factors,
+              recommendations, and missions will appear here.
+            </p>
             <button
-              className="btn btn-outline"
-              disabled={step === 0}
-              onClick={() => setStep((prev) => Math.max(prev - 1, 0))}
-            >
-              ← Previous
-            </button>
-            <button
-              className="btn btn-primary"
-              disabled={currentAnswer === undefined}
+              className="btn btn-primary narrow"
               onClick={() => {
-                if (step === QUESTIONS.length - 1) {
-                  handleFinishSurvey();
-                } else {
-                  setStep((prev) => prev + 1);
-                }
+                setPage("survey");
+                setShowResult(false);
               }}
             >
-              {step === QUESTIONS.length - 1 ? "See result" : "Next"} →
+              Start survey
             </button>
           </div>
         </section>
-      </div>
-    </main>
+      ) : (
+        <MyPageContent result={latestResult} completedMissions={completedMissions} />
+      )}
+    </DashboardFrame>
   );
+}
+
+if (showResult) {
+  return (
+    <DashboardFrame user={user} page="survey" onChangePage={handleChangePage} onLogout={logout}>
+      <header className="page-header">
+        <div className="badge">📋 Result Report</div>
+        <h1 className="page-title">Your Risk Analysis Result</h1>
+        <p className="page-text">
+          Review your main risk factors, screening suggestions, and weekly action plan.
+        </p>
+      </header>
+
+      <ResultContent
+        result={analysis}
+        completedMissions={completedMissions}
+        setCompletedMissions={setCompletedMissions}
+        onRetake={resetSurvey}
+      />
+    </DashboardFrame>
+  );
+}
+
+const question = QUESTIONS[step];
+const currentAnswer = answers[question.id];
+const progress = Math.round(((step + 1) / QUESTIONS.length) * 100);
+
+return (
+  <DashboardFrame user={user} page="survey" onChangePage={handleChangePage} onLogout={logout}>
+    <header className="page-header">
+      <div className="badge">❤️ Cancer Lifestyle Risk Check</div>
+      <h1 className="page-title">Lifestyle-Based Cancer Risk Check</h1>
+      <p className="page-text">
+        Complete a short survey, see your personalized risk factors, and choose practical weekly
+        missions.
+      </p>
+    </header>
+
+    <section className="card survey-card">
+      <div className="progress-area">
+        <div className="progress-meta">
+          <span>
+            Question {step + 1} / {QUESTIONS.length}
+          </span>
+          <span>{progress}%</span>
+        </div>
+        <div className="progress-track">
+          <div className="progress-bar" style={{ width: `${progress}%` }} />
+        </div>
+      </div>
+
+      <div className="question-area">
+        <span className={`category-pill ${question.categoryClass}`}>
+          {question.category}
+        </span>
+
+        <h2 className="question-title">{question.title}</h2>
+        <p className="question-description">{question.description}</p>
+
+        {question.type === "yesno" ? (
+          <div className="yesno-grid">
+            {(["yes", "no"] as const).map((value) => (
+              <button
+                key={value}
+                type="button"
+                className={`yesno-btn ${currentAnswer === value ? "selected" : ""}`}
+                onClick={() =>
+                  setAnswers((prev) => ({
+                    ...prev,
+                    [question.id]: value,
+                  }))
+                }
+              >
+                <span>{value === "yes" ? "Yes" : "No"}</span>
+                <span>{currentAnswer === value ? "✓" : ""}</span>
+              </button>
+            ))}
+          </div>
+        ) : (
+          <>
+            <div className="scale-grid">
+              {[1, 2, 3, 4, 5].map((value) => (
+                <button
+                  key={value}
+                  type="button"
+                  className={`scale-btn ${Number(currentAnswer) === value ? "selected" : ""}`}
+                  onClick={() =>
+                    setAnswers((prev) => ({
+                      ...prev,
+                      [question.id]: value,
+                    }))
+                  }
+                >
+                  {value}
+                </button>
+              ))}
+            </div>
+
+            <div className="scale-labels">
+              <span>{question.lowLabel}</span>
+              <span>{question.highLabel}</span>
+            </div>
+          </>
+        )}
+      </div>
+
+      <div className="survey-actions">
+        <button
+          type="button"
+          className="btn btn-outline"
+          disabled={step === 0}
+          onClick={() => setStep((prev) => Math.max(prev - 1, 0))}
+        >
+          ← Previous
+        </button>
+
+        <button
+          type="button"
+          className="btn btn-primary"
+          disabled={currentAnswer === undefined}
+          onClick={() => {
+            if (step === QUESTIONS.length - 1) {
+              handleFinishSurvey();
+            } else {
+              setStep((prev) => prev + 1);
+            }
+          }}
+        >
+          {step === QUESTIONS.length - 1 ? "See result" : "Next"} →
+        </button>
+      </div>
+    </section>
+  </DashboardFrame>
+);
 }
